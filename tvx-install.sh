@@ -62,5 +62,8 @@ pacstrap /mnt ntfs-3g
 echo "Generating fstab"
 genfstab -U /mnt >> /mnt/etc/fstab
 
+echo "Getting Chroot script"
+wget https://raw.githubusercontent.com/tvx-dev/tvx-arch-install/main/tvx-chroot.sh
+mv -v tvx-chroot.sh /mnt/root/
 echo "Chrooting into the new system"
 arch-chroot /mnt
