@@ -28,30 +28,15 @@ if [ "$efi" == "true" ]; then
   mkdir /mnt/boot
   mount /dev/${disk}1 /mnt/boot
 else
-  read -p "Enter size of root partition (in GB): " root_size
-  read -p "Do you want to create a swap partition? (y/n) " swap_choice
-  case "$swap_choice" in 
-    y|Y ) read -p "Enter size of swap partition (in GB): " swap_size;;
-    n|N ) swap_size="0";;
-    * ) echo "Invalid choice"; exit;;
-  esac
-
   echo "Creating root partition"
   parted --script /dev/$disk mklabel msdos
-  parted --script /dev/$disk mkpart primary ext4 1MiB ${root_size}GB
+  parted --script /dev/$disk mkpart primary ext4 1MiB 100%
   parted --script /dev/$disk set 1 boot on
-  
-  if [ "$swap_size" != "0" ]; then
-    echo "Creating swap partition"
-    parted --script /dev/$disk mkpart primary linux-swap ${root_size}GB 100%
-    mkswap /dev/${disk}2
-    swapon /dev/${disk}2
-  fi
-  
-  echo "Formatting partitions"
+
+  echo "Formatting partition"
   mkfs.ext4 /dev/${disk}1
-  
-  echo "Mounting partitions"
+
+  echo "Mounting partition"
   mount /dev/${disk}1 /mnt
 fi
 
