@@ -62,7 +62,14 @@ echo "Installing base system"
 pacstrap /mnt base linux linux-firmware
 
 echo "Installing desktop & tools"
-pacstrap /mnt plasma kate kwrite htop neofetch screenfetch ark dolphin dolphin-plugins elisa filelight kcalc konsole okular spectacle sweeper networkmanager sudo nano vim
+pacstrap /mnt plasma kate kwrite htop neofetch screenfetch ark dolphin dolphin-plugins elisa filelight kcalc konsole okular spectacle sweeper networkmanager sudo nano vim sddm
+
+echo "Installing Grubinstaller"
+if [ "$efi" == "true" ]; then
+  pacstrap /mnt grub efibootmgr
+else
+  pacstrap /mnt grub
+fi
 
 echo "Install ntfs Support"
 pacstrap /mnt ntfs-3g
@@ -100,8 +107,7 @@ fi
 echo "Enable network manager"
 systemctl enable NetworkManager.service
 
-echo "Installing sddm"
-pacman -S sddm
+echo "Enable sddm"
 systemctl enable sddm.service
 
 echo "Creating new user"
@@ -115,10 +121,8 @@ fi
 
 echo "Configuring bootloader"
 if [ "$efi" == "true" ]; then
-  pacman -S grub efibootmgr
   grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 else
-  pacman -S grub
   grub-install /dev/\$disk
 fi
 grub-mkconfig -o /boot/grub/grub.cfg
