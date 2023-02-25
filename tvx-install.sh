@@ -63,10 +63,50 @@ echo "Generating fstab"
 genfstab -U /mnt >> /mnt/etc/fstab
 
 echo "Getting Chroot script"
-wget https://raw.githubusercontent.com/tvx-dev/tvx-arch-install/main/tvx-chroot.sh
+cat <<EOF > tvx-chroot.sh
+echo "Setting timezone"
+ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
+hwclock --systohc
+
+echo "Setting system language"
+pacman -S locales
+echo "de_DE.UTF-8 UTF-8" > /etc/locale.gen
+locale-gen
+echo "LANG=de_DE.UTF-8" > /etc/locale.conf
+export LANG=de_DE.UTF-8
+
+echo "Setting keyboard layout"
+pacman -S console-data
+loadkeys de-latin1
+
+echo "arch" > /etc/hostname
+
+echo "Enable network manager"
+systemctl enable NetworkManager.service
+
+echo "Enable sddm"
+systemctl enable sddm.service
+
+useradd -m -g users -G wheel -s /bin/bash arch
+passwd arch
+
+echo "Configuring bootloader"
+if [ "$efi" == "true" ]; then
+  grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
+else
+  grub-install /dev/\$disk
+fi
+grub-mkconfig -o /boot/grub/grub.cfg
+
+echo "Enabling multilib repository"
+sed -i 's/#\[multilib\]/\[multilib\]/' /etc/pacman.conf
+sed -i 's/#Include = \/etc\/pacman.d\/mirrorlist/Include = \/etc\/pacman.d\/mirrorlist/' /etc/pacman.conf
+
+echo "Installation complete!"
 chmod +x tvx-chroot.sh 
 mv -v tvx-chroot.sh /mnt/
 echo "Chrooting into the new system"
 echo "Type ./tvx-chroot.sh"
 echo "if error just reexecute"
 arch-chroot /mnt
+EOF
