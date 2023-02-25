@@ -88,8 +88,7 @@ pacman -S console-data
 loadkeys de-latin1
 
 echo "Setting hostname"
-read -p "Enter hastname: " hstm
-echo $hstm > /etc/hostname
+echo "arch" > /etc/hostname
 
 echo "Installing network manager"
 pacman -S networkmanager
