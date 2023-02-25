@@ -113,10 +113,8 @@ systemctl enable sddm.service
 echo "Creating new user"
 if [[ -z "$username" ]]; then
   useradd -m -g users -G wheel -s /bin/bash \$USERNAME
-  passwd \$USERNAME
 else
   useradd -m -g users -G wheel -s /bin/bash "$username"
-  passwd "$username"
 fi
 
 echo "Configuring bootloader"
@@ -131,8 +129,8 @@ echo "Enabling multilib repository"
 sed -i 's/#\[multilib\]/\[multilib\]/' /etc/pacman.conf
 sed -i 's/#Include = \/etc\/pacman.d\/mirrorlist/Include = \/etc\/pacman.d\/mirrorlist/' /etc/pacman.conf
 
-echo "Setting root password"
-passwd
-
 echo "Installation complete!"
 EOF
+echo "Chrooting into /mnt"
+echo "Please type passwd and passwd <your uasername> or passwd arch"
+arch-chroot /mnt
