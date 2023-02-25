@@ -71,8 +71,7 @@ echo "Generating fstab"
 genfstab -U /mnt >> /mnt/etc/fstab
 
 echo "Chrooting into the new system"
-arch-chroot /mnt
-
+arch-chroot /mnt /bin/bash <<EOF
 echo "Setting timezone"
 ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 hwclock --systohc
@@ -95,6 +94,10 @@ echo $hstm > /etc/hostname
 echo "Installing network manager"
 pacman -S networkmanager
 systemctl enable NetworkManager.service
+
+echo "Installing sddm"
+pacman -S sddm
+systemctl enable sddm.service
 
 echo "Creating new user"
 read -p "Enter username: " username
@@ -119,3 +122,4 @@ echo "Setting root password"
 passwd
 
 echo "Installation complete!"
+EOF
