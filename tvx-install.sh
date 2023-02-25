@@ -62,7 +62,7 @@ echo "Installing base system"
 pacstrap /mnt base linux linux-firmware
 
 echo "Installing desktop & tools"
-pacstrap /mnt plasma kate kwrite htop neofetch screenfetch ark dolphin dolphin-plugins elisa filelight kcalc konsole okular spectacle sweeper
+pacstrap /mnt plasma kate kwrite htop neofetch screenfetch ark dolphin dolphin-plugins elisa filelight kcalc konsole okular spectacle sweeper networkmanager sudo nano vim
 
 echo "Install ntfs Support"
 pacstrap /mnt ntfs-3g
@@ -97,8 +97,7 @@ else
   echo "$hstm" > /etc/hostname
 fi
 
-echo "Installing network manager"
-pacman -S networkmanager
+echo "Enable network manager"
 systemctl enable NetworkManager.service
 
 echo "Installing sddm"
