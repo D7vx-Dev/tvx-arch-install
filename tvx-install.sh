@@ -70,6 +70,9 @@ pacstrap /mnt ntfs-3g
 echo "Generating fstab"
 genfstab -U /mnt >> /mnt/etc/fstab
 
+read -p "Enter username: " username
+read -p "Enter hostname: " hstm
+
 echo "Chrooting into the new system"
 arch-chroot /mnt /bin/bash <<EOF
 echo "Setting timezone"
@@ -88,7 +91,11 @@ pacman -S console-data
 loadkeys de-latin1
 
 echo "Setting hostname"
-echo "arch" > /etc/hostname
+if [[ -z "$hstm" ]]; then
+  echo "arch" > /etc/hostname
+else
+  echo "$hstm" > /etc/hostname
+fi
 
 echo "Installing network manager"
 pacman -S networkmanager
@@ -99,9 +106,13 @@ pacman -S sddm
 systemctl enable sddm.service
 
 echo "Creating new user"
-read -p "Enter username: " username
-useradd -m -g users -G wheel -s /bin/bash $username
-passwd $username
+if [[ -z "$username" ]]; then
+  useradd -m -g users -G wheel -s /bin/bash \$USERNAME
+  passwd \$USERNAME
+else
+  useradd -m -g users -G wheel -s /bin/bash "$username"
+  passwd "$username"
+fi
 
 echo "Configuring bootloader"
 if [ "$efi" == "true" ]; then
@@ -109,7 +120,7 @@ if [ "$efi" == "true" ]; then
   grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
 else
   pacman -S grub
-  grub-install /dev/$disk
+  grub-install /dev/\$disk
 fi
 grub-mkconfig -o /boot/grub/grub.cfg
 
