@@ -43,43 +43,38 @@ echo "Generate chroot script"
 cat > /mnt/tvx-chroot.sh << EOF
 #!/bin/bash
 
+
 echo "Which GPU driver do you want to install?"
 echo "1. NVIDIA"
 echo "2. AMD"
 echo "3. Intel"
 echo "4. AMD ROCm"
 read -p "Enter your choice (1, 2, 3, or 4): " choice
-case $choice in
-  1)
-    echo "Installing NVIDIA drivers..."
-    sudo pacman -S nvidia nvidia-utils nvidia-settings
-    sudo systemctl enable nvidia-persistenced
-    sudo systemctl enable nvidia-fallback
-    sudo reboot
-    ;;
-  2)
-    echo "Installing AMD drivers..."
-    sudo pacman -S mesa vulkan-radeon libva-mesa-driver libva-vdpau-driver
-    sudo pacman -S lib32-mesa lib32-vulkan-radeon lib32-libva-mesa-driver lib32-libva-vdpau-driver
-    sudo reboot
-    ;;
-  3)
-    echo "Installing Intel drivers..."
-    sudo pacman -S mesa libva-intel-driver vulkan-intel
-    sudo pacman -S lib32-mesa lib32-libva-intel-driver lib32-vulkan-intel
-    sudo reboot
-    ;;
-  4)
-    echo "Installing AMD ROCm drivers..."
-    sudo pacman -S rocm-libs rocm-dev rocm-utils
-    ;;
-  *)
-    echo "Invalid choice. Exiting..."
-    exit 1
-    ;;
-esac
 
-
+if [ $choice -eq 1 ]
+then
+  echo "Installing NVIDIA drivers..."
+  sudo pacman -S nvidia nvidia-utils nvidia-settings
+  sudo systemctl enable nvidia-persistenced
+  sudo systemctl enable nvidia-fallback
+elif [ $choice -eq 2 ]
+then
+  echo "Installing AMD drivers..."
+  sudo pacman -S mesa vulkan-radeon libva-mesa-driver libva-vdpau-driver
+  sudo pacman -S lib32-mesa lib32-vulkan-radeon lib32-libva-mesa-driver lib32-libva-vdpau-driver
+elif [ $choice -eq 3 ]
+then
+  echo "Installing Intel drivers..."
+  sudo pacman -S mesa libva-intel-driver vulkan-intel
+  sudo pacman -S lib32-mesa lib32-libva-intel-driver lib32-vulkan-intel
+elif [ $choice -eq 4 ]
+then
+  echo "Installing AMD ROCm drivers..."
+  sudo pacman -S rocm-libs rocm-dev rocm-utils
+else
+  echo "Invalid choice. Exiting..."
+  exit 1
+fi
 
 echo "Setting timezone"
 ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
