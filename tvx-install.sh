@@ -26,6 +26,10 @@ mount "${disk}1" /mnt/boot
 echo "Updating system clock"
 timedatectl set-ntp true
 
+echo "Setup Mirrorlist"
+pacman -S reflector
+reflector -c "US" -f 12 -l 10 -n 12 --save /etc/pacman.d/mirrorlist
+
 echo "Install base system"
 pacstrap /mnt base base-devel linux linux-firmware
 
@@ -62,6 +66,8 @@ echo "Enable sddm"
 systemctl enable sddm.service
 
 echo "arch" > /etc/hostname
+touch /etc/hosts
+echo "127.0.0.1	localhost\n::1		localhost\n127.0.1.1	myarch" > /etc/hosts
 
 echo "Enter a username for the new system:"
 read username
