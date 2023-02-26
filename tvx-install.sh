@@ -47,32 +47,41 @@ echo "Which GPU driver do you want to install?"
 echo "1. NVIDIA"
 echo "2. AMD"
 echo "3. Intel"
-read -p "Enter your choice (1, 2, or 3): " choice
-
+echo "4. AMD ROCm"
+read -p "Enter your choice (1, 2, 3 or 4): " choice
 case $choice in
   1)
     echo "Installing NVIDIA drivers..."
     sudo pacman -S nvidia nvidia-utils nvidia-settings
     sudo systemctl enable nvidia-persistenced
     sudo systemctl enable nvidia-fallback
-    sudo reboot
     ;;
   2)
     echo "Installing AMD drivers..."
     sudo pacman -S mesa vulkan-radeon libva-mesa-driver libva-vdpau-driver
     sudo pacman -S lib32-mesa lib32-vulkan-radeon lib32-libva-mesa-driver lib32-libva-vdpau-driver
-    sudo reboot
     ;;
   3)
     echo "Installing Intel drivers..."
     sudo pacman -S mesa libva-intel-driver vulkan-intel
     sudo pacman -S lib32-mesa lib32-libva-intel-driver lib32-vulkan-intel
-    sudo reboot
+    ;;
+  4)
+    echo "Installing AMD ROCm drivers..."
+    sudo pacman -S rocm-libs rocm-dev rocm-utils
     ;;
   *)
     echo "Invalid choice. Exiting..."
+    exit 1
     ;;
 esac
+
+if [[ $choice == 1 || $choice == 2 || $choice == 3 || $choice == 4 ]]; then
+  echo "GPU driver installation completed successfully. You can now use your GPU."
+else
+  echo "GPU driver installation failed. Please try again."
+fi
+
 
 echo "Setting timezone"
 ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
@@ -119,21 +128,19 @@ flatpak install flathub com.spotify.Client -y
 flatpak install flathub com.visualstudio.code -y
 
 # Install VirtualBox and required packages
-sudo pacman -S virtualbox virtualbox-host-modules-arch virtualbox-guest-utils --noconfirm
+pacman -S virtualbox virtualbox-host-modules-arch virtualbox-guest-utils --noconfirm
 
 # Enable the vboxdrv kernel module
-sudo modprobe vboxdrv
+modprobe vboxdrv
 
 # Enable and start the vboxservice systemd service
-sudo systemctl enable vboxservice.service
-sudo systemctl start vboxservice.service
+systemctl enable vboxservice.service
+systemctl start vboxservice.service
 
-mkdir /home/root/
-cd /home/root/
 wget https://github.com/tvx-dev/packages/raw/main/multimc-bin-x86_64.pkg.tar.zst
-sudo pacman -U --noconfirm multimc-bin-x86_64.pkg.tar.zst
+pacman -U --noconfirm multimc-bin-x86_64.pkg.tar.zst
 wget https://github.com/tvx-dev/packages/raw/main/yay-x86_64.pkg.tar.zst
-sudo pacman -U --noconfirm yay-x86_64.pkg.tar.zst
+pacman -U --noconfirm yay-x86_64.pkg.tar.zst
 
 EOF
 
