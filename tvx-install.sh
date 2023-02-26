@@ -27,14 +27,14 @@ echo "Updating system clock"
 timedatectl set-ntp true
 
 echo "Setup Mirrorlist"
-pacman -S reflector
+pacman -S reflector --noconfirm
 reflector -c "US" -f 12 -l 10 -n 12 --save /etc/pacman.d/mirrorlist
 
 echo "Install base system"
 pacstrap /mnt base base-devel linux linux-firmware
 
 echo "Installing desktop & tools"
-pacstrap /mnt plasma kate kwrite htop neofetch screenfetch ark dolphin dolphin-plugins elisa filelight kcalc konsole okular spectacle sweeper networkmanager firefox sudo nano vim sddm
+pacstrap /mnt plasma kate kwrite htop neofetch screenfetch ark dolphin dolphin-plugins elisa filelight kcalc konsole okular spectacle sweeper networkmanager firefox sudo nano vim sddm discord base-devel git jre-openjdk-headless python3 python-pip cmake
 
 echo "Generate fstab"
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -42,6 +42,38 @@ genfstab -U /mnt >> /mnt/etc/fstab
 echo "Generate chroot script"
 cat > /mnt/tvx-chroot.sh << EOF
 #!/bin/bash
+
+echo "Which GPU driver do you want to install?"
+echo "1. NVIDIA"
+echo "2. AMD"
+echo "3. Intel"
+read -p "Enter your choice (1, 2, or 3): " choice
+
+case $choice in
+  1)
+    echo "Installing NVIDIA drivers..."
+    sudo pacman -S nvidia nvidia-utils nvidia-settings
+    sudo systemctl enable nvidia-persistenced
+    sudo systemctl enable nvidia-fallback
+    sudo reboot
+    ;;
+  2)
+    echo "Installing AMD drivers..."
+    sudo pacman -S mesa vulkan-radeon libva-mesa-driver libva-vdpau-driver
+    sudo pacman -S lib32-mesa lib32-vulkan-radeon lib32-libva-mesa-driver lib32-libva-vdpau-driver
+    sudo reboot
+    ;;
+  3)
+    echo "Installing Intel drivers..."
+    sudo pacman -S mesa libva-intel-driver vulkan-intel
+    sudo pacman -S lib32-mesa lib32-libva-intel-driver lib32-vulkan-intel
+    sudo reboot
+    ;;
+  *)
+    echo "Invalid choice. Exiting..."
+    ;;
+esac
+
 echo "Setting timezone"
 ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 hwclock --systohc
@@ -54,7 +86,7 @@ echo "LANG=de_DE.UTF-8" > /etc/locale.conf
 export LANG=de_DE.UTF-8
 
 # Install console-data package
-pacman -S --noconfirm console-data
+pacman -S --noconfirm console-data ntfs-3g
 
 # Set keyboard layout in vconsole.conf
 echo "KEYMAP=de-latin1" > /etc/vconsole.conf
@@ -80,6 +112,28 @@ echo '%wheel ALL=(ALL) ALL' >> /etc/sudoers
 pacman -S grub efibootmgr --noconfirm
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=arch_grub --recheck
 grub-mkconfig -o /boot/grub/grub.cfg
+
+flatpak install brave -y
+flatpak install flathub com.valvesoftware.Steam -y
+flatpak install flathub com.spotify.Client -y
+flatpak install flathub com.visualstudio.code -y
+
+# Install VirtualBox and required packages
+sudo pacman -S virtualbox virtualbox-host-modules-arch virtualbox-guest-utils --noconfirm
+
+# Enable the vboxdrv kernel module
+sudo modprobe vboxdrv
+
+# Enable and start the vboxservice systemd service
+sudo systemctl enable vboxservice.service
+sudo systemctl start vboxservice.service
+
+mkdir /home/root/
+cd /home/root/
+wget https://github.com/tvx-dev/packages/raw/main/multimc-bin-x86_64.pkg.tar.zst
+sudo pacman -U --noconfirm multimc-bin-x86_64.pkg.tar.zst
+wget https://github.com/tvx-dev/packages/raw/main/yay-x86_64.pkg.tar.zst
+sudo pacman -U --noconfirm yay-x86_64.pkg.tar.zst
 
 EOF
 
