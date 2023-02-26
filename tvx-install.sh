@@ -30,7 +30,7 @@ echo "Install base system"
 pacstrap /mnt base base-devel linux linux-firmware
 
 echo "Installing desktop & tools"
-pacstrap /mnt plasma kate kwrite htop neofetch screenfetch ark dolphin dolphin-plugins elisa filelight kcalc konsole okular spectacle sweeper networkmanager sudo nano vim sddm
+pacstrap /mnt plasma kate kwrite htop neofetch screenfetch ark dolphin dolphin-plugins elisa filelight kcalc konsole okular spectacle sweeper networkmanager firefox sudo nano vim sddm
 
 echo "Generate fstab"
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -66,10 +66,10 @@ echo "arch" > /etc/hostname
 echo "Enter a username for the new system:"
 read username
 useradd -m -G wheel -s /bin/bash \$username
-echo "Set a password for the root user:"
-passwd
 echo "Set a password for the new user:"
 passwd \$username
+echo "Set a password for the root user:"
+passwd
 echo '%wheel ALL=(ALL) ALL' >> /etc/sudoers
 pacman -S grub efibootmgr --noconfirm
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=arch_grub --recheck
