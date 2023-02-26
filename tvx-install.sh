@@ -44,6 +44,8 @@ cat > /mnt/tvx-chroot.sh << EOF
 #!/bin/bash
 
 
+#!/bin/bash
+
 echo "Which GPU driver do you want to install?"
 echo "1. NVIDIA"
 echo "2. AMD"
@@ -51,7 +53,10 @@ echo "3. Intel"
 echo "4. AMD ROCm"
 read -p "Enter your choice (1, 2, 3, or 4): " choice
 
-if [ $choice -eq 1 ]
+if ! [[ "$choice" =~ ^[1-4]$ ]] ; then
+  echo "Invalid choice. Exiting..."
+  exit 1
+elif [ $choice -eq 1 ]
 then
   echo "Installing NVIDIA drivers..."
   sudo pacman -S nvidia nvidia-utils nvidia-settings
@@ -71,9 +76,6 @@ elif [ $choice -eq 4 ]
 then
   echo "Installing AMD ROCm drivers..."
   sudo pacman -S rocm-libs rocm-dev rocm-utils
-else
-  echo "Invalid choice. Exiting..."
-  exit 1
 fi
 
 echo "Setting timezone"
