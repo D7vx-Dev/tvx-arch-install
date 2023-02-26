@@ -34,7 +34,7 @@ echo "Install base system"
 pacstrap /mnt base base-devel linux linux-firmware
 
 echo "Installing desktop & tools"
-pacstrap /mnt plasma kate kwrite htop neofetch screenfetch ark dolphin dolphin-plugins elisa filelight kcalc konsole okular spectacle sweeper networkmanager firefox sudo nano vim sddm discord base-devel git jre-openjdk-headless python3 python-pip cmake
+pacstrap /mnt wget plasma kate kwrite htop neofetch screenfetch ark dolphin dolphin-plugins elisa filelight kcalc konsole okular spectacle sweeper networkmanager firefox sudo nano vim sddm discord base-devel git jre-openjdk-headless python3 python-pip cmake
 
 echo "Generate fstab"
 genfstab -U /mnt >> /mnt/etc/fstab
