@@ -1,69 +1,40 @@
 #!/bin/bash
 
-echo "Welcome to Arch Linux installation script"
+# Ask user to select disk for installation
+echo "Please select the disk to install Arch Linux on:"
+read -p "Disk (e.g. /dev/sda): " disk
 
-read -p "Do you want to install in EFI mode? (y/n) " choice
-case "$choice" in 
-  y|Y ) efi="true";;
-  n|N ) efi="false";;
-  * ) echo "Invalid choice"; exit;;
-esac
+echo "Partition the disk"
+parted --script "${disk}" \
+    mklabel gpt \
+    mkpart ESP fat32 1MiB 513MiB \
+    set 1 boot on \
+    mkpart primary ext4 513MiB 100%
 
-lsblk
-read -p "Enter the disk to partition: " disk
+echo "Format partitions"
+mkfs.fat -F32 "${disk}1"
+mkfs.ext4 "${disk}2"
 
-if [ "$efi" == "true" ]; then
-  echo "Creating partitions"
-  parted --script /dev/$disk mklabel gpt
-  parted --script /dev/$disk mkpart ESP fat32 1MiB 512MiB
-  parted --script /dev/$disk set 1 boot on
-  parted --script /dev/$disk mkpart primary ext4 512MiB 100%
-  
-  echo "Formatting partitions"
-  mkfs.fat -F32 /dev/${disk}1
-  mkfs.ext4 /dev/${disk}2
-  
-  echo "Mounting partitions"
-  mount /dev/${disk}2 /mnt
-  mkdir /mnt/boot
-  mount /dev/${disk}1 /mnt/boot
-else
-  echo "Creating root partition"
-  parted --script /dev/$disk mklabel msdos
-  parted --script /dev/$disk mkpart primary ext4 1MiB 100%
-  parted --script /dev/$disk set 1 boot on
-
-  echo "Formatting partition"
-  mkfs.ext4 /dev/${disk}1
-
-  echo "Mounting partition"
-  mount /dev/${disk}1 /mnt
-fi
+echo "Mount the partitions"
+mount "${disk}2" /mnt
+mkdir /mnt/boot
+mount "${disk}1" /mnt/boot
 
 echo "Updating system clock"
 timedatectl set-ntp true
 
-echo "Installing base system"
-pacstrap /mnt base linux linux-firmware
+echo "Install base system"
+pacstrap /mnt base base-devel linux linux-firmware
 
 echo "Installing desktop & tools"
 pacstrap /mnt plasma kate kwrite htop neofetch screenfetch ark dolphin dolphin-plugins elisa filelight kcalc konsole okular spectacle sweeper networkmanager sudo nano vim sddm
 
-echo "Installing Grubinstaller"
-if [ "$efi" == "true" ]; then
-  pacstrap /mnt grub efibootmgr
-else
-  pacstrap /mnt grub
-fi
-
-echo "Install ntfs Support"
-pacstrap /mnt ntfs-3g
-
-echo "Generating fstab"
+echo "Generate fstab"
 genfstab -U /mnt >> /mnt/etc/fstab
 
-echo "Getting Chroot script"
-cat <<EOF > tvx-chroot.sh
+echo "Generate chroot script"
+cat > /mnt/tvx-chroot.sh << EOF
+#!/bin/bash
 echo "Setting timezone"
 ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 hwclock --systohc
@@ -75,11 +46,11 @@ locale-gen
 echo "LANG=de_DE.UTF-8" > /etc/locale.conf
 export LANG=de_DE.UTF-8
 
-echo "Setting keyboard layout"
-pacman -S console-data
-loadkeys de-latin1
+# Install console-data package
+pacman -S --noconfirm console-data
 
-echo "arch" > /etc/hostname
+# Set keyboard layout in vconsole.conf
+echo "KEYMAP=de-latin1" > /etc/vconsole.conf
 
 echo "Enable network manager"
 systemctl enable NetworkManager.service
@@ -87,26 +58,32 @@ systemctl enable NetworkManager.service
 echo "Enable sddm"
 systemctl enable sddm.service
 
-useradd -m -g users -G wheel -s /bin/bash arch
-passwd arch
+echo "arch" > /etc/hostname
 
-echo "Configuring bootloader"
-if [ "$efi" == "true" ]; then
-  grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB
-else
-  grub-install /dev/\$disk
-fi
+echo "Enter a username for the new system:"
+read username
+useradd -m -G wheel -s /bin/bash \$username
+echo "Set a password for the root user:"
+passwd
+echo "Set a password for the new user:"
+passwd \$username
+echo '%wheel ALL=(ALL) ALL' >> /etc/sudoers
+pacman -S grub efibootmgr --noconfirm
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=arch_grub --recheck
 grub-mkconfig -o /boot/grub/grub.cfg
 
 echo "Enabling multilib repository"
 sed -i 's/#\[multilib\]/\[multilib\]/' /etc/pacman.conf
 sed -i 's/#Include = \/etc\/pacman.d\/mirrorlist/Include = \/etc\/pacman.d\/mirrorlist/' /etc/pacman.conf
+EOF
 
-echo "Installation complete!"
-chmod +x tvx-chroot.sh 
+# Make chroot script executable
+chmod +x /mnt/tvx-chroot.sh
 mv -v tvx-chroot.sh /mnt/
+
 echo "Chrooting into the new system"
 echo "Type ./tvx-chroot.sh"
 echo "if error just reexecute"
 arch-chroot /mnt
-EOF
+
+echo "Installation complete. Please run tvx-chroot.sh script in the new system to perform additional configurations."
