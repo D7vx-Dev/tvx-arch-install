@@ -1,6 +1,9 @@
 #!/bin/bash
 
+echo "Welcome to TVX Archlinux install script"
 # Ask user to select disk for installation
+echo "Listing Disks:"
+lsblk
 echo "Please select the disk to install Arch Linux on:"
 read -p "Disk (e.g. /dev/sda): " disk
 
