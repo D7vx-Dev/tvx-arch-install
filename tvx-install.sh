@@ -130,12 +130,20 @@ pacman -U --noconfirm multimc-bin-x86_64.pkg.tar.zst
 wget https://github.com/tvx-dev/packages/raw/main/yay-x86_64.pkg.tar.zst
 pacman -U --noconfirm yay-x86_64.pkg.tar.zst
 
-yay -S visual-studio-code-bin --noconfirm
-yay -S spotify --noconfirm 
+pacman-key -r 931FF8E79F0876134EDDBDCCA87FF9DF48BF1C90
+pacman -Syu spotify --noconfirm
+pacman-key --recv-keys EB3E94ADBE1229CF
+pacman-key --lsign-key EB3E94ADBE1229CF
+echo "[code]
+Server = https://packages.microsoft.com/repos/vscode/stable/community/x86_64" | sudo tee /etc/pacman.d/microsoft-code-stable-community.repo
+pacman -Syu --noconfirm
+pacman -S code --noconfirm
+
 
 cd /boot/grub/themes/
-wget https://github.com/AdisonCavani/distro-grub-themes/releases/download/v3.1/arch.tar
-tar -xf arch.tar -C /arch/
+sudo mkdir arch
+sudo wget https://github.com/AdisonCavani/distro-grub-themes/releases/download/v3.1/arch.tar
+sudo tar -xf arch.tar -C arch/
 echo 'GRUB_THEME="/boot/grub/themes/arch/theme.txt"' | sudo tee -a /etc/default/grub
 EOF
 
