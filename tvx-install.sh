@@ -114,8 +114,6 @@ grub-mkconfig -o /boot/grub/grub.cfg
 
 flatpak install brave -y
 flatpak install flathub com.valvesoftware.Steam -y
-flatpak install flathub com.spotify.Client -y
-flatpak install flathub com.visualstudio.code -y
 
 # Install VirtualBox and required packages
 pacman -S virtualbox virtualbox-host-modules-arch virtualbox-guest-utils --noconfirm
@@ -132,6 +130,8 @@ pacman -U --noconfirm multimc-bin-x86_64.pkg.tar.zst
 wget https://github.com/tvx-dev/packages/raw/main/yay-x86_64.pkg.tar.zst
 pacman -U --noconfirm yay-x86_64.pkg.tar.zst
 
+yay -S visual-studio-code-bin --noconfirm
+yay -S spotify --noconfirm 
 EOF
 
 # Make chroot script executable
