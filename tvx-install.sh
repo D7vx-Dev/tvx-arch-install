@@ -132,6 +132,11 @@ pacman -U --noconfirm yay-x86_64.pkg.tar.zst
 
 yay -S visual-studio-code-bin --noconfirm
 yay -S spotify --noconfirm 
+
+cd /boot/grub/themes/
+wget https://github.com/AdisonCavani/distro-grub-themes/releases/download/v3.1/arch.tar
+tar -xf arch.tar -C /arch/
+echo 'GRUB_THEME="/boot/grub/themes/arch/theme.txt"' | sudo tee -a /etc/default/grub
 EOF
 
 # Make chroot script executable
