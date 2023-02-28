@@ -47,8 +47,7 @@ echo "Which GPU driver do you want to install?"
 echo "1. NVIDIA"
 echo "2. AMD"
 echo "3. Intel"
-echo "4. AMD ROCm"
-read -p "Enter your choice (1, 2, 3, or 4): " choice
+read -p "Enter your choice (1, 2, or 3): " choice
 
 if [[ \$choice == 1 ]]; then
     echo "Installing NVIDIA drivers..."
@@ -63,11 +62,6 @@ elif [[ \$choice == 3 ]]; then
     echo "Installing Intel drivers..."
     pacman -S mesa libva-intel-driver vulkan-intel --noconfirm
     pacman -S lib32-mesa lib32-libva-intel-driver lib32-vulkan-intel --noconfirm
-elif [[ \$choice == 4 ]]; then
-    echo "Installing AMD ROCm drivers..."
-    pacman -S mesa vulkan-radeon libva-mesa-driver libva-vdpau-driver --noconfirm
-    pacman -S lib32-mesa lib32-vulkan-radeon lib32-libva-mesa-driver lib32-libva-vdpau-driver --noconfirm
-    pacman -S libclc rocm-clang hsa-rocr-dev rocm-dev rocm-utils --noconfirm
 else
     echo "Invalid choice. Exiting..."
     exit 1
