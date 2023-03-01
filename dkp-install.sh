@@ -15,7 +15,7 @@ sudo pacman -U devkitpro-keyring.pkg.tar.xz --noconfirm
 sudo echo '[dkp-libs]' | sudo tee -a /etc/pacman.conf
 sudo echo 'Server = https://pkg.devkitpro.org/packages' | sudo tee -a /etc/pacman.conf
 sudo echo ' ' | sudo tee -a /etc/pacman.conf
-sudo echo '[dkp-linux' | sudo tee -a /etc/pacman.conf
+sudo echo '[dkp-linux]' | sudo tee -a /etc/pacman.conf
 sudo echo 'Server = https://pkg.devkitpro.org/packages/windows/$arch/' | sudo tee -a /etc/pacman.conf
 sudo echo ' ' | sudo tee -a /etc/pacman.conf
 
