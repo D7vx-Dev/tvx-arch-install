@@ -9,19 +9,15 @@ read -p "Disk (e.g. /dev/sda): " disk
 
 echo "Partition the disk"
 parted --script "${disk}" \
-    mklabel gpt \
-    mkpart ESP fat32 1MiB 513MiB \
-    set 1 boot on \
-    mkpart primary ext4 513MiB 100%
+    mklabel msdos \
+    mkpart primary ext4 1MiB 100% \
+    set 1 boot on
 
 echo "Format partitions"
-mkfs.fat -F32 "${disk}1"
-mkfs.ext4 "${disk}2"
+mkfs.ext4 "${disk}1"
 
 echo "Mount the partitions"
-mount "${disk}2" /mnt
-mkdir /mnt/boot
-mount "${disk}1" /mnt/boot
+mount "${disk}1" /mnt
 
 echo "Updating system clock"
 timedatectl set-ntp true
@@ -121,8 +117,8 @@ passwd \$username
 echo "Set a password for the root user:"
 passwd
 echo '%wheel ALL=(ALL) ALL' >> /etc/sudoers
-pacman -S grub efibootmgr --noconfirm
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=arch_grub --recheck
+pacman -S grub --noconfirm
+grub-install --target=i386-pc /
 grub-mkconfig -o /boot/grub/grub.cfg
 
 flatpak install brave -y
