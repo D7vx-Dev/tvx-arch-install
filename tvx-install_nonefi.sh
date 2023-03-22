@@ -144,6 +144,8 @@ sudo mkdir arch
 sudo wget https://github.com/AdisonCavani/distro-grub-themes/releases/download/v3.1/arch.tar
 sudo tar -xf arch.tar -C arch/
 echo 'GRUB_THEME="/boot/grub/themes/arch/theme.txt"' | sudo tee -a /etc/default/grub
+pacman -S grub --noconfirm
+grub-install --target=i386-pc "$disk"
 grub-mkconfig -o /boot/grub/grub.cfg
 EOF
 
