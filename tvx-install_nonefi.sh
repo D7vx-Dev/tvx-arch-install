@@ -118,7 +118,7 @@ echo "Set a password for the root user:"
 passwd
 echo '%wheel ALL=(ALL) ALL' >> /etc/sudoers
 pacman -S grub --noconfirm
-grub-install --target=i386-pc /
+grub-install --target=i386-pc "$disk"
 grub-mkconfig -o /boot/grub/grub.cfg
 
 flatpak install brave -y
@@ -145,7 +145,6 @@ sudo wget https://github.com/AdisonCavani/distro-grub-themes/releases/download/v
 sudo tar -xf arch.tar -C arch/
 echo 'GRUB_THEME="/boot/grub/themes/arch/theme.txt"' | sudo tee -a /etc/default/grub
 pacman -S grub --noconfirm
-grub-install --target=i386-pc "$disk"
 grub-mkconfig -o /boot/grub/grub.cfg
 EOF
 
