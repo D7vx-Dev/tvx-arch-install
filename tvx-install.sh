@@ -106,7 +106,7 @@ elif [ "$desktop_env" = "gnome" ]; then
   pacman -S --noconfirm gdm
   systemctl enable gdm.service
 else
-  echo "Invalid choice. Please type 'sddm' or 'gdm'."
+  echo "Impossible to get here... i thought"
 fi
 
 echo "arch" > /etc/hostname
@@ -125,7 +125,6 @@ pacman -S grub efibootmgr --noconfirm
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=arch_grub --recheck
 grub-mkconfig -o /boot/grub/grub.cfg
 
-flatpak install brave -y
 flatpak install flathub com.valvesoftware.Steam -y
 
 # Install VirtualBox and required packages
@@ -149,6 +148,20 @@ sudo wget https://github.com/AdisonCavani/distro-grub-themes/releases/download/v
 sudo tar -xf arch.tar -C arch/
 echo 'GRUB_THEME="/boot/grub/themes/arch/theme.txt"' | sudo tee -a /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
+
+cat > /home/\$username/finish_install.sh << EOF2
+#!/bin/bash
+yay -Sy --noconfirm visual-studio-code-bin
+if [ "$desktop_env" = "gnome" ]; then
+  yay -Sy --noconfirm gnome-browser-connector
+else
+  echo "Don't need this for KDE!"
+fi
+EOF2
+chmod +x /home/\$username/finish_install.sh
+chown \$username:\$username /home/\$username/finish_install.sh
+echo "Install Finisched!"
+echo "Rebbot, Login and in terminal type ./finish_install.sh"
 EOF
 
 # Make chroot script executable
