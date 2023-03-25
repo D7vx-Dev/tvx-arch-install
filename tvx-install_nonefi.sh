@@ -33,7 +33,7 @@ echo "Install base system"
 pacstrap /mnt base base-devel linux linux-firmware
 
 echo "Installing desktop & tools"
-pacstrap /mnt wget htop neofetch screenfetch networkmanager firefox sudo nano vim discord base-devel git jre-openjdk-headless python3 python-pip cmake
+pacstrap /mnt wget htop neofetch screenfetch networkmanager firefox sudo nano vim discord base-devel git jre-openjdk-headless python3 python-pip cmake qt6 qt5
 
 # Install packages based on user's choice
 if [ "$desktop_env" = "kde" ]; then
