@@ -7,6 +7,9 @@ lsblk
 echo "Please select the disk to install Arch Linux on:"
 read -p "Disk (e.g. /dev/sda): " disk
 
+echo "Which desktop environment would you like to install? Type 'kde' or 'gnome': "
+read desktop_env
+
 echo "Partition the disk"
 parted --script "${disk}" \
     mklabel gpt \
@@ -35,8 +38,6 @@ pacstrap /mnt base base-devel linux linux-firmware
 
 echo "Installing desktop & tools"
 pacstrap /mnt wget htop neofetch screenfetch networkmanager firefox sudo nano vim discord base-devel git jre-openjdk-headless python3 python-pip cmake
-echo "Which desktop environment would you like to install? Type 'kde' or 'gnome': "
-read desktop_env
 
 # Install packages based on user's choice
 if [ "$desktop_env" = "kde" ]; then
@@ -54,6 +55,15 @@ genfstab -U /mnt >> /mnt/etc/fstab
 echo "Generate chroot script"
 cat > /mnt/tvx-chroot.sh << EOF
 #!/bin/bash
+
+echo "Enter a username for the new system:"
+read username
+useradd -m -G wheel -s /bin/bash \$username
+echo "Set a password for the new user:"
+passwd \$username
+echo "Set a password for the root user:"
+passwd
+echo '%wheel ALL=(ALL) ALL' >> /etc/sudoers
 
 echo "Which GPU driver do you want to install?"
 echo "1. NVIDIA"
@@ -113,14 +123,6 @@ echo "arch" > /etc/hostname
 touch /etc/hosts
 echo "127.0.0.1	localhost\n::1		localhost\n127.0.1.1	myarch" > /etc/hosts
 
-echo "Enter a username for the new system:"
-read username
-useradd -m -G wheel -s /bin/bash \$username
-echo "Set a password for the new user:"
-passwd \$username
-echo "Set a password for the root user:"
-passwd
-echo '%wheel ALL=(ALL) ALL' >> /etc/sudoers
 pacman -S grub efibootmgr --noconfirm
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=arch_grub --recheck
 grub-mkconfig -o /boot/grub/grub.cfg
@@ -151,7 +153,11 @@ grub-mkconfig -o /boot/grub/grub.cfg
 
 cat > /home/\$username/finish_install.sh << EOF2
 #!/bin/bash
+echo "Installing Tools"
 yay -Sy --noconfirm visual-studio-code-bin
+yay -Sy --noconfirm spotify
+
+echo "Fix Gnome thing"
 if [ "$desktop_env" = "gnome" ]; then
   yay -Sy --noconfirm gnome-browser-connector
 else
